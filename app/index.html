@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <div class="header-left">
+                <h1>Election Assistant</h1>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    <span>AI Assistant Online</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </button>
+            </div>
+        </header>
+
+        <main class="chat-window" id="chatMessages">
+            <div class="message bot">
+                <div class="avatar">EA</div>
+                <div class="bubble">
+                    Hello! I'm your Election Assistant. How can I help you navigate the voting process today?
+                </div>
+            </div>
+
+            <div class="message user">
+                <div class="bubble">
+                    How do I register to vote?
+                </div>
+            </div>
+
+            <div class="message bot">
+                <div class="avatar">EA</div>
+                <div class="bubble">
+                    To register to vote, you'll generally need to be a citizen and meet your state's residency requirements. Would you like me to find the specific registration portal for your state?
+                </div>
+            </div>
+        </main>
+
+        <footer class="chat-input-container">
+            <div class="input-bar">
+                <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                <button id="sendButton" class="send-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
