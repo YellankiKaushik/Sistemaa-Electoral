@@ -4,14 +4,24 @@ const chatMessages = document.getElementById('chatMessages');
 
 let currentStep = 1;
 
-function addMessage(text, sender = 'user') {
+function addMessage(text, sender = 'user', isHtml = false) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
 
-    if (sender === 'bot') {
-        messageDiv.innerHTML = `<div class="avatar">EA</div><div class="bubble">${text}</div>`;
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    
+    if (isHtml) {
+        bubble.innerHTML = text;
     } else {
-        messageDiv.innerHTML = `<div class="bubble">${text}</div>`;
+        bubble.textContent = text;
+    }
+
+    if (sender === 'bot') {
+        messageDiv.innerHTML = `<div class="avatar">EA</div>`;
+        messageDiv.appendChild(bubble);
+    } else {
+        messageDiv.appendChild(bubble);
     }
 
     chatMessages.appendChild(messageDiv);
@@ -21,7 +31,9 @@ function addMessage(text, sender = 'user') {
 function formatBotResponse(data) {
     const md = (t) => {
         if (!t) return '';
-        return t
+        // Basic sanitization: escape raw HTML tags before adding formatting
+        const safeText = String(t).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        return safeText
             .replace(/^### (.*)/gm, '<h3>$1</h3>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -60,7 +72,7 @@ async function handleSendMessage() {
 
     try {
         const selectedLanguage = document.getElementById('languageSelector').value;
-        const response = await fetch('http://localhost:3000/chat', {
+        const response = await fetch('/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -85,7 +97,7 @@ async function handleSendMessage() {
 
         const data = await response.json();
         const formattedResponse = formatBotResponse(data);
-        addMessage(formattedResponse, 'bot');
+        addMessage(formattedResponse, 'bot', true);
 
         // Add "next" flow hint if in guided mode and not help/confusion
         if (
@@ -135,7 +147,7 @@ if (startButton) {
 }
 
 function showGreeting() {
-    addMessage("Hello! I'm your Election Assistant. How can I help you navigate the voting process today?", 'bot');
+    addMessage("Hello! I'm your Election Assistant. How can I help you navigate the voting process today?", 'bot', false);
 
     // Add instruction guidance
     const instruction = document.createElement('div');

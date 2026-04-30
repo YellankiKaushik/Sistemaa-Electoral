@@ -18,9 +18,20 @@ router.post('/', async (req, res) => {
   }
 
   // Pass input to logic engine
-  const result = await logicEngine.processMessage(message, user_profile, current_step, user_language);
-
-  res.status(200).json(result);
+  try {
+    const result = await logicEngine.processMessage(message, user_profile, current_step, user_language);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Chat Route Error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'An internal error occurred',
+      title: "System Busy",
+      explanation: "I'm having a bit of trouble processing that right now. Let's try again in a moment.",
+      next_suggestion: "You can try rephrasing your question or typing 'next' to continue the guide.",
+      confirmation: "Would you like to try again?"
+    });
+  }
 });
 
 module.exports = router;

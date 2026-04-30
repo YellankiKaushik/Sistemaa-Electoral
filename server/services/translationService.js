@@ -73,7 +73,7 @@ const translateToEnglish = async (text) => {
  * @returns {Promise<string>} - Translated text
  */
 const translateText = async (text, targetLang) => {
-  if (!API_KEY || !text || text.trim() === '' || targetLang === 'en') return text;
+  if (!API_KEY || !text || text.trim() === '') return text;
 
   return new Promise((resolve) => {
     const data = JSON.stringify({ q: text, target: targetLang });
