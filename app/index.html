@@ -55,26 +55,34 @@
         </header>
 
         <main class="chat-window" id="chatMessages">
-            <div class="message bot">
-                <div class="avatar">EA</div>
-                <div class="bubble">
-                    Hello! I'm your Election Assistant. How can I help you navigate the voting process today?
-                </div>
-            </div>
-
-            <div class="message user">
-                <div class="bubble">
-                    How do I register to vote?
-                </div>
-            </div>
-
-            <div class="message bot">
-                <div class="avatar">EA</div>
-                <div class="bubble">
-                    To register to vote, you'll generally need to be a citizen and meet your state's residency requirements. Would you like me to find the specific registration portal for your state?
-                </div>
-            </div>
+            <!-- Messages will be added dynamically -->
         </main>
+
+        <style>
+            .suggestion-btn {
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 1px solid var(--primary);
+                background: white;
+                color: var(--primary);
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-weight: 500;
+            }
+            .suggestion-btn:hover {
+                background: var(--primary-light);
+            }
+            .suggestions-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: -8px;
+                margin-bottom: 12px;
+                margin-left: 44px;
+                animation: fadeIn 0.3s ease-out;
+            }
+        </style>
 
         <footer class="chat-input-container">
             <div class="input-bar">

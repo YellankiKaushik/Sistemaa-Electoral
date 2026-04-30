@@ -111,5 +111,34 @@ if (startButton) {
     startButton.addEventListener('click', () => {
         landingScreen.style.display = 'none';
         chatContainer.style.display = 'flex';
+        showGreeting();
     });
+}
+
+function showGreeting() {
+    addMessage("Hello! I'm your Election Assistant. How can I help you navigate the voting process today?", 'bot');
+    addSuggestions([
+        "What is election?",
+        "Explain election timeline",
+        "Why are elections conducted?"
+    ]);
+}
+
+function addSuggestions(suggestions) {
+    const suggestionsDiv = document.createElement('div');
+    suggestionsDiv.className = 'suggestions-container';
+
+    suggestions.forEach(text => {
+        const btn = document.createElement('button');
+        btn.className = 'suggestion-btn';
+        btn.textContent = text;
+        btn.onclick = () => {
+            messageInput.value = text;
+            handleSendMessage();
+            suggestionsDiv.remove();
+        };
+        suggestionsDiv.appendChild(btn);
+    });
+    chatMessages.appendChild(suggestionsDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
