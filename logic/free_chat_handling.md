@@ -13,6 +13,10 @@ When a user input is received that does not match a navigation command (e.g., "n
 
 ---
 
+
+
+
+
 ## 2. Intent-Based Answering
 The response varies depending on the detected intent:
 
