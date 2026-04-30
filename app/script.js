@@ -101,3 +101,15 @@ sendButton.addEventListener('click', handleSendMessage);
 messageInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSendMessage();
 });
+
+// Landing screen transition logic
+const startButton = document.getElementById('startButton');
+const landingScreen = document.getElementById('landingScreen');
+const chatContainer = document.getElementById('chatContainer');
+
+if (startButton) {
+    startButton.addEventListener('click', () => {
+        landingScreen.style.display = 'none';
+        chatContainer.style.display = 'flex';
+    });
+}

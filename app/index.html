@@ -8,7 +8,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="chat-container">
+    <div id="landingScreen" class="chat-container">
+        <header class="chat-header" style="justify-content: center; padding: 30px 24px;">
+            <h1 style="font-size: 1.5rem;">Election Assistant</h1>
+        </header>
+        <main class="chat-window" style="padding: 30px 24px; display: flex; flex-direction: column; gap: 24px;">
+            <p style="color: var(--text-gray); line-height: 1.6; text-align: center;">
+                Your intelligent companion for navigating the democratic process with confidence and clarity.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 10px;">
+                <div class="info-item">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">What it does</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-gray);">Provides instant, accurate information on voting registration, polling locations, and ballot details.</p>
+                </div>
+                <div class="info-item">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">Why to use it</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-gray);">Avoid confusion and ensure your vote counts by getting personalized guidance through election complexities.</p>
+                </div>
+                <div class="info-item">
+                    <h3 style="font-size: 0.95rem; font-weight: 600; color: var(--text-dark); margin-bottom: 4px;">How to use it</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-gray);">Type your election questions in the chat or follow the guided onboarding to learn step-by-step.</p>
+                </div>
+            </div>
+
+            <button id="startButton" class="send-btn" style="width: 100%; height: 50px; border-radius: 12px; font-weight: 600; margin-top: auto;">
+                Start Assistant
+            </button>
+        </main>
+    </div>
+
+    <div class="chat-container" id="chatContainer" style="display: none;">
         <header class="chat-header">
             <div class="header-left">
                 <h1>Election Assistant</h1>
