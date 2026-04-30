@@ -117,6 +117,16 @@ if (startButton) {
 
 function showGreeting() {
     addMessage("Hello! I'm your Election Assistant. How can I help you navigate the voting process today?", 'bot');
+    
+    // Add instruction guidance
+    const instruction = document.createElement('div');
+    instruction.style.fontSize = '0.8rem';
+    instruction.style.color = 'var(--text-gray)';
+    instruction.style.margin = '4px 0 12px 44px';
+    instruction.style.opacity = '0.8';
+    instruction.textContent = 'You can type your question or click one of the options below to get started.';
+    chatMessages.appendChild(instruction);
+
     addSuggestions([
         "What is election?",
         "Explain election timeline",
