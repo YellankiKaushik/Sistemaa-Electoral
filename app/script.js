@@ -7,13 +7,13 @@ let currentStep = 1;
 function addMessage(text, sender = 'user') {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${sender}`;
-    
+
     if (sender === 'bot') {
         messageDiv.innerHTML = `<div class="avatar">EA</div><div class="bubble">${text}</div>`;
     } else {
         messageDiv.innerHTML = `<div class="bubble">${text}</div>`;
     }
-    
+
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -28,10 +28,10 @@ function formatBotResponse(data) {
     };
 
     let html = '';
-    
+
     if (data.title) html += `<div class="bot-title">${md(data.title)}</div>`;
     if (data.explanation) html += `${md(data.explanation)}<br>`;
-    
+
     if (data.steps && Array.isArray(data.steps)) {
         html += '<ul style="margin: 8px 0; padding-left: 20px;">';
         data.steps.forEach(step => {
@@ -39,11 +39,11 @@ function formatBotResponse(data) {
         });
         html += '</ul>';
     }
-    
+
     if (data.example) html += `<br><em>Example:</em> ${md(data.example)}<br>`;
     if (data.next_suggestion) html += `<br>💡 ${md(data.next_suggestion)}`;
     if (data.confirmation) html += `<br><br>${md(data.confirmation)}`;
-    
+
     return html;
 }
 
@@ -86,7 +86,11 @@ async function handleSendMessage() {
         addMessage(formattedResponse, 'bot');
 
         // Add "next" flow hint if in guided mode and not help/confusion
-        if (data.intent !== 'help' && data.intent !== 'confusion') {
+        if (
+            data.intent !== 'help' &&
+            data.intent !== 'confusion' &&
+            data.mode === 'guided'
+        ) {
             const nextHint = document.createElement('div');
             nextHint.className = 'flow-hint';
             nextHint.style.fontSize = '0.8rem';
@@ -130,7 +134,7 @@ if (startButton) {
 
 function showGreeting() {
     addMessage("Hello! I'm your Election Assistant. How can I help you navigate the voting process today?", 'bot');
-    
+
     // Add instruction guidance
     const instruction = document.createElement('div');
     instruction.style.fontSize = '0.8rem';
