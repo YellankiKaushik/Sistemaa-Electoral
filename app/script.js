@@ -85,6 +85,19 @@ async function handleSendMessage() {
         const formattedResponse = formatBotResponse(data);
         addMessage(formattedResponse, 'bot');
 
+        // Add "next" flow hint if in guided mode and not help/confusion
+        if (data.intent !== 'help' && data.intent !== 'confusion') {
+            const nextHint = document.createElement('div');
+            nextHint.className = 'flow-hint';
+            nextHint.style.fontSize = '0.8rem';
+            nextHint.style.color = 'var(--text-gray)';
+            nextHint.style.margin = '4px 0 12px 44px';
+            nextHint.style.opacity = '0.8';
+            nextHint.textContent = "👉 Type 'next' to continue to the next step";
+            chatMessages.appendChild(nextHint);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
         // Update step if returned in response
         if (data.current_step) currentStep = data.current_step;
         else if (data.next_step) currentStep = data.next_step;
