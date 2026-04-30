@@ -26,6 +26,28 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
     ...user_profile
   };
 
+  const lowerMessage = (message || "").toLowerCase().trim();
+
+  // Handle explicit "help" command
+  if (lowerMessage === 'help') {
+    const helpResponse = {
+      title: "### How to Use This Assistant",
+      explanation: "This assistant helps you understand and navigate the election process with ease.\n\n" +
+                   "• **What you can ask**: You can ask about voting requirements, registration steps, or election timelines.\n" +
+                   "• **How to navigate**: Use the guided learning path by typing **'next'**, or simply ask any question at any time.",
+      example: "You can learn step-by-step about elections by following the guide, or ask questions like 'What is election?' or 'How to vote?'",
+      next_suggestion: "To get started with the guided tour, just type **'next'**.",
+      confirmation: "I'm here to help you become an informed voter!"
+    };
+    return {
+      ...responseFormatter.formatResponse(helpResponse),
+      current_step,
+      next_step: current_step,
+      intent: 'help',
+      status: 'success'
+    };
+  }
+
   // 1. Detect intent
   const intent = intentService.detectIntent(message);
 
