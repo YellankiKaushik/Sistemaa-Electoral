@@ -59,6 +59,7 @@ async function handleSendMessage() {
     chatMessages.lastElementChild.id = 'typing-indicator';
 
     try {
+        const selectedLanguage = document.getElementById('languageSelector').value;
         const response = await fetch('http://localhost:3000/chat', {
             method: 'POST',
             headers: {
@@ -71,7 +72,8 @@ async function handleSendMessage() {
                     type: "first_time",
                     mode: "guided"
                 },
-                current_step: currentStep
+                current_step: currentStep,
+                user_language: selectedLanguage
             })
         });
 

@@ -6,8 +6,8 @@ const logicEngine = require('../services/logicEngine');
  * POST /chat
  * Main endpoint to handle user queries
  */
-router.post('/', (req, res) => {
-  const { message, user_profile, current_step } = req.body;
+router.post('/', async (req, res) => {
+  const { message, user_profile, current_step, user_language } = req.body;
 
   // Basic validation
   if (!message) {
@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
   }
 
   // Pass input to logic engine
-  const result = logicEngine.processMessage(message, user_profile, current_step);
+  const result = await logicEngine.processMessage(message, user_profile, current_step, user_language);
 
   res.status(200).json(result);
 });

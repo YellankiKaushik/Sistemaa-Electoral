@@ -1,8 +1,15 @@
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
 /**
  * apiFallback.js
- * Handles queries using an AI API when rule-based logic fails.
+ * Handles queries using Google Gemini API when rule-based logic fails.
  */
-const callApi = (message, user_profile) => {
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+const callApi = async (message, user_profile) => {
   try {
     const query = message && message.trim() !== "" ? message : null;
 
@@ -15,17 +22,31 @@ const callApi = (message, user_profile) => {
       };
     }
 
-    // Placeholder for AI API call
+    // Strict prompt for minimal token usage
+    const prompt = `
+Answer briefly and clearly about elections or voting.
+Max 5-6 lines.
+No extra explanation.
+
+User question:
+${query}
+`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    
+    // Limit output and add disclaimer
+    const limitedText = text.slice(0, 600);
+
     return {
-      title: "### AI Assistant Response",
-      explanation: "I've searched my knowledge base for your specific question: " + query,
-      steps: ["This is a placeholder for the actual AI-generated answer."],
-      example: "If you had asked about registration, I would explain the portal here.",
-      next_suggestion: "Shall we return to our guided election journey?",
+      title: "AI Assistant Response",
+      explanation: limitedText + "\n\n(This response is AI-generated and may contain minor inaccuracies.)",
+      next_suggestion: "Would you like to continue with the guide?",
       confirmation: "Did that answer your question?",
       status: 'success'
     };
   } catch (error) {
+    console.error("Gemini API Error:", error);
     // Safe Fallback if API or processing fails
     return {
       title: "Temporary Issue",

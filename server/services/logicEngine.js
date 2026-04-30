@@ -4,6 +4,7 @@ const personalizationService = require('./personalizationService');
 const confusionService = require('./confusionService');
 const apiFallback = require('./apiFallback');
 const responseFormatter = require('./responseFormatter');
+const translationService = require('./translationService');
 
 /**
  * logicEngine.js
@@ -17,7 +18,7 @@ const responseFormatter = require('./responseFormatter');
  * @param {number} current_step - Current progress in guided flow
  * @returns {object} Structured response
  */
-const processMessage = (message, user_profile = {}, current_step = 1) => {
+const processMessage = async (message, user_profile = {}, current_step = 1, user_language = null) => {
   // Default structure for user_profile if not provided
   const profile = {
     level: user_profile.level || 'beginner',
@@ -26,7 +27,19 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
     ...user_profile
   };
 
-  const lowerMessage = (message || "").toLowerCase().trim();
+  // 0. Language detection and translation
+  // Prioritize user-selected language, fallback to auto-detection for longer messages
+  let lang = user_language || 'en';
+  if (!user_language && message && message.split(" ").length >= 3) {
+    lang = await translationService.detectLanguage(message);
+  }
+
+  let translatedInput = message;
+  if (lang !== 'en') {
+    translatedInput = await translationService.translateToEnglish(message);
+  }
+
+  const lowerMessage = (translatedInput || "").toLowerCase().trim();
 
   // Handle explicit "help" command
   if (lowerMessage === 'help') {
@@ -39,17 +52,30 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
       next_suggestion: "To get started with the guided tour, just type **'next'**.",
       confirmation: "I'm here to help you become an informed voter!"
     };
-    return {
+    
+    let finalHelpResponse = {
       ...responseFormatter.formatResponse(helpResponse),
       current_step,
       next_step: current_step,
       intent: 'help',
-      status: 'success'
+      mode: profile.mode,
+      status: 'success',
+      language: lang
     };
+
+    // Translate output back if needed
+    if (lang !== 'en') {
+      finalHelpResponse.title = await translationService.translateText(finalHelpResponse.title, lang);
+      finalHelpResponse.explanation = await translationService.translateText(finalHelpResponse.explanation, lang);
+      finalHelpResponse.next_suggestion = await translationService.translateText(finalHelpResponse.next_suggestion, lang);
+      finalHelpResponse.confirmation = await translationService.translateText(finalHelpResponse.confirmation, lang);
+    }
+
+    return finalHelpResponse;
   }
 
   // 1. Detect intent
-  const intent = intentService.detectIntent(message);
+  const intent = intentService.detectIntent(translatedInput);
 
   let finalResponse;
 
@@ -60,7 +86,7 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
   
   if (supportedIntents.includes(intent.intent)) {
     // 3. Apply flow (guided/free)
-    const flowResult = flowService.handleFlow(intent.intent, profile, current_step, message);
+    const flowResult = flowService.handleFlow(intent.intent, profile, current_step, translatedInput);
     
     // 4. Apply personalization
     const personalizedResponse = personalizationService.adaptResponse(flowResult, profile);
@@ -71,7 +97,7 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
     };
   } else {
     // Trigger API Fallback
-    finalResponse = apiFallback.callApi(message, profile);
+    finalResponse = await apiFallback.callApi(translatedInput, profile);
     finalResponse.next_step = current_step; // Maintain current step
   }
 
@@ -79,19 +105,32 @@ const processMessage = (message, user_profile = {}, current_step = 1) => {
   finalResponse.intent = intent.intent;
 
   // 6. Apply confusion handling
-  finalResponse = confusionService.handleConfusion(message, finalResponse);
+  finalResponse = confusionService.handleConfusion(translatedInput, finalResponse);
 
   // 7. Format final output
   const formattedResponse = responseFormatter.formatResponse(finalResponse, profile);
 
-  // 8. Return structured response
-  return {
+  // 8. Prepare final return object
+  let finalResult = {
     ...formattedResponse,
     next_step: finalResponse.next_step,
     current_step: finalResponse.current_step,
     intent: finalResponse.intent,
-    status: 'success'
+    mode: profile.mode,
+    status: 'success',
+    language: lang
   };
+
+  // 9. Translate output back if needed
+  if (lang !== 'en') {
+    finalResult.title = await translationService.translateText(finalResult.title, lang);
+    finalResult.explanation = await translationService.translateText(finalResult.explanation, lang);
+    finalResult.next_suggestion = await translationService.translateText(finalResult.next_suggestion, lang);
+    finalResult.confirmation = await translationService.translateText(finalResult.confirmation, lang);
+    // DO NOT translate steps array as per requirement
+  }
+
+  return finalResult;
 };
 
 module.exports = {
