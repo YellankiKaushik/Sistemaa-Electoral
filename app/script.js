@@ -389,6 +389,18 @@ restartButton.addEventListener('click', () => {
 
 window.handleSendMessage = handleSendMessage;
 
+window.startAssistant = function() {
+  const debug = document.getElementById("debug");
+  if (debug) debug.innerText = "Start clicked";
+  const landingScreen = document.getElementById('landingScreen');
+  const chatCont = document.getElementById('chatContainer');
+  if (landingScreen && chatCont) {
+    landingScreen.style.display = 'none';
+    chatCont.style.display = 'flex';
+    showGreeting();
+  }
+};
+
 window.onload = () => {
   const input = document.getElementById("messageInput");
   const sendBtn = document.getElementById("sendBtn");
@@ -399,16 +411,7 @@ window.onload = () => {
   if (debug) debug.innerText = "Elements loaded";
 
   if (startBtn) {
-    startBtn.onclick = () => {
-      if (debug) debug.innerText = "Start clicked";
-      const landingScreen = document.getElementById('landingScreen');
-      const chatCont = document.getElementById('chatContainer');
-      if (landingScreen && chatCont) {
-        landingScreen.style.display = 'none';
-        chatCont.style.display = 'flex';
-        showGreeting();
-      }
-    };
+    startBtn.onclick = window.startAssistant;
   }
 
   if (sendBtn) {

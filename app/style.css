@@ -35,16 +35,16 @@ body {
 }
 
 .chat-container {
-    width: 100%;
-    max-width: 480px;
-    height: 85vh;
-    background: linear-gradient(to bottom right, #ffffff, #f8fafc);
     display: flex;
     flex-direction: column;
+    height: 100dvh;
+    width: 100%;
+    max-width: 480px;
+    margin: auto;
+    position: relative;
+    background: linear-gradient(to bottom right, #ffffff, #f8fafc);
     border-radius: 24px;
     box-shadow: var(--shadow);
-    overflow: hidden;
-    position: relative;
     border: 1px solid var(--border);
     z-index: 1;
 }
@@ -155,7 +155,6 @@ body {
 .landing-window {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: center;
     min-height: 100dvh;
     padding: 20px;
@@ -166,8 +165,7 @@ body {
 
 .landing-content {
     width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
+    max-width: 480px;
 }
 
 .start-btn {
@@ -261,14 +259,13 @@ body {
 
 /* Input Area */
 .chat-input-container {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: white;
     position: sticky;
     bottom: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background: white;
-    padding: 10px;
-    z-index: 10;
+    z-index: 100;
     border-top: 1px solid var(--border);
 }
 
@@ -418,7 +415,7 @@ body {
 @media (max-width: 768px) {
     body {
         align-items: flex-start;
-        height: 100%;
+        min-height: 100%;
     }
 
     .chat-container {
@@ -478,17 +475,13 @@ body {
 }
 
 button {
-    pointer-events: auto;
+    padding: 12px 16px;
     z-index: 20;
 }
 
 input {
+    flex: 1;
     font-size: 16px;
+    padding: 12px;
     width: 100%;
-}
-
-.overlay,
-.loader,
-.hidden-layer {
-    pointer-events: none !important;
 }
