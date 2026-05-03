@@ -1,62 +1,67 @@
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
-const chatMessages = document.getElementById('chatMessages');
-const persistentSuggestions = document.getElementById('persistentSuggestions');
-const progressIndicator = document.getElementById('progressIndicator');
-const restartButton = document.getElementById('restartButton');
-const scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+console.log("JS LOADED SUCCESSFULLY");
 
+window.onerror = function (msg, url, line) {
+  console.error("GLOBAL ERROR:", msg, "at line", line);
+};
+
+// ── State ──────────────────────────────────────────────────────────
 let currentStep = 1;
 let isProcessing = false;
 let currentLanguage = localStorage.getItem('user_language') || 'en';
 
-const landingSelector = document.getElementById('languageSelectorLanding');
-const chatSelector = document.getElementById('languageSelector');
-
-if (landingSelector && localStorage.getItem('user_language')) {
-  landingSelector.value = currentLanguage;
-} else if (landingSelector) {
-  currentLanguage = landingSelector.value;
-}
-if (chatSelector) chatSelector.value = currentLanguage;
+// ── Language sync (safe — landing selector is visible at parse time) ──
+(function initLangSync() {
+  const ls = document.getElementById('languageSelectorLanding');
+  if (ls && localStorage.getItem('user_language')) {
+    ls.value = currentLanguage;
+  } else if (ls) {
+    currentLanguage = ls.value;
+  }
+})();
 
 document.addEventListener('change', (e) => {
   if (e.target.id === 'languageSelectorLanding' || e.target.id === 'languageSelector') {
     currentLanguage = e.target.value;
     localStorage.setItem('user_language', currentLanguage);
-    if (landingSelector) landingSelector.value = currentLanguage;
-    if (chatSelector) chatSelector.value = currentLanguage;
+    const ls = document.getElementById('languageSelectorLanding');
+    const cs = document.getElementById('languageSelector');
+    if (ls) ls.value = currentLanguage;
+    if (cs) cs.value = currentLanguage;
   }
 });
 
-/** Send without clearing persistent suggestion rail */
+// ── Start Assistant ────────────────────────────────────────────────
+function startAssistant() {
+  const landingScreen = document.getElementById('landingScreen');
+  const chatCont = document.getElementById('chatContainer');
+  if (landingScreen) landingScreen.style.display = 'none';
+  if (chatCont) {
+    chatCont.style.display = 'flex';
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages && chatMessages.children.length === 0) {
+      showGreeting();
+    }
+  }
+}
+
+// ── Send Message ───────────────────────────────────────────────────
 async function handleSendMessage(overrideText = null) {
   const input = document.getElementById("messageInput");
-  const debug = document.getElementById("debug");
+  const chatMessages = document.getElementById("chatMessages");
 
-  if (!input) {
-    if (debug) debug.innerText = "Input NOT found";
-    return;
-  }
-
-  if (isProcessing === true) return;
+  if (!input || !chatMessages) return;
+  if (isProcessing) return;
 
   const text = String(overrideText != null ? overrideText : input.value).trim();
-  if (!text) {
-    if (debug) debug.innerText = "Empty message";
-    return;
-  }
-
+  if (!text) return;
   if (document.getElementById('typing-indicator')) return;
 
-  if (debug) debug.innerText = "Sending message...";
-
-  addMessage(text || '...', 'user');
+  addMessage(text, 'user');
   if (overrideText == null) {
     input.value = '';
   }
 
-  // Loading Indicator UX
+  // Loading indicator
   addMessage('<div class="spinner"></div><span>Processing...</span>', 'bot', true);
   chatMessages.lastElementChild.id = 'typing-indicator';
   input.placeholder = "Processing...";
@@ -81,13 +86,11 @@ async function handleSendMessage(overrideText = null) {
       user_language: currentLanguage
     };
 
-    console.log("Sending request to:", `${API_URL}/chat`);
+    console.log("SENDING REQUEST TO:", `${API_URL}/chat`);
 
     const response = await fetch(`${API_URL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
@@ -97,8 +100,6 @@ async function handleSendMessage(overrideText = null) {
     if (typingIndicator) typingIndicator.remove();
 
     const data = await response.json();
-    
-    if (debug) debug.innerText = "Response received";
     console.log(data);
 
     syncClientState(data);
@@ -116,13 +117,11 @@ async function handleSendMessage(overrideText = null) {
 
     isProcessing = false;
     input.disabled = false;
-    input.placeholder = "Type your message...";
+    input.placeholder = "Type here...";
   } catch (error) {
     isProcessing = false;
     input.disabled = false;
-    input.placeholder = "Type your message...";
-
-    if (debug) debug.innerText = "ERROR sending";
+    input.placeholder = "Type here...";
 
     const typingIndicator = document.getElementById('typing-indicator');
     if (typingIndicator) typingIndicator.remove();
@@ -132,6 +131,7 @@ async function handleSendMessage(overrideText = null) {
   }
 }
 
+// ── State sync ─────────────────────────────────────────────────────
 function syncClientState(data) {
   window.__lastConfusionLevel =
     typeof data.confusionLevel === 'number' ? data.confusionLevel : 0;
@@ -149,12 +149,15 @@ function syncClientState(data) {
   }
 }
 
+// ── Progress ───────────────────────────────────────────────────────
 function updateProgressIndicator(step) {
+  const progressIndicator = document.getElementById('progressIndicator');
   if (progressIndicator) {
     progressIndicator.textContent = `Step ${step} of 5`;
   }
 }
 
+// ── Suggestion rail helpers ────────────────────────────────────────
 function inferSuggestionContext(data) {
   if (data && data._starter) return 'starter';
   if (data && (data.is_complete === true ||
@@ -200,16 +203,16 @@ function attachPersistentButton(rail, { label, onClick }) {
 }
 
 function focusInputPlaceholder(placeholder) {
-  messageInput.placeholder = placeholder;
-  messageInput.focus();
-  messageInput.classList.add('input-nudge');
-  setTimeout(() => messageInput.classList.remove('input-nudge'), 400);
+  const input = document.getElementById('messageInput');
+  if (!input) return;
+  input.placeholder = placeholder;
+  input.focus();
+  input.classList.add('input-nudge');
+  setTimeout(() => input.classList.remove('input-nudge'), 400);
 }
 
-/**
- * Refresh one persistent suggestion rail — never removes the rail itself.
- */
 function updatePersistentSuggestions(data) {
+  const persistentSuggestions = document.getElementById('persistentSuggestions');
   if (!persistentSuggestions) return;
 
   persistentSuggestions.hidden = false;
@@ -229,9 +232,7 @@ function updatePersistentSuggestions(data) {
     attachPersistentButton(rail, {
       label: 'Ask question',
       onClick: async () => {
-        focusInputPlaceholder(
-          'Ask anything about voting or elections…'
-        );
+        focusInputPlaceholder('Ask anything about voting or elections…');
       }
     });
     return;
@@ -245,9 +246,7 @@ function updatePersistentSuggestions(data) {
     attachPersistentButton(rail, {
       label: 'Ask another question',
       onClick: async () => {
-        focusInputPlaceholder(
-          'Ask another election-related question…'
-        );
+        focusInputPlaceholder('Ask another election-related question…');
       }
     });
     return;
@@ -261,9 +260,7 @@ function updatePersistentSuggestions(data) {
     attachPersistentButton(rail, {
       label: 'Ask another topic',
       onClick: async () => {
-        focusInputPlaceholder(
-          'Try: timeline, process, importance, registration…'
-        );
+        focusInputPlaceholder('Try: timeline, process, importance, registration…');
       }
     });
     return;
@@ -284,14 +281,17 @@ function updatePersistentSuggestions(data) {
   }
 }
 
+// ── Message rendering ──────────────────────────────────────────────
 function addMessage(text, sender = 'user', isHtml = false) {
+  const chatMessages = document.getElementById('chatMessages');
+  if (!chatMessages) return;
+
   const messageDiv = document.createElement('div');
   messageDiv.className = `message ${sender}`;
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
 
-  // Long Message Readability
   const wordCount = text.split(/\s+/).length;
   if (sender === 'bot' && wordCount > 150 && isHtml) {
     bubble.innerHTML = `
@@ -337,6 +337,7 @@ function addMessage(text, sender = 'user', isHtml = false) {
   }, 100);
 }
 
+// ── Response formatting ────────────────────────────────────────────
 function formatBotResponse(data) {
   const md = (t) => {
     if (!t) return '';
@@ -367,67 +368,7 @@ function formatBotResponse(data) {
   return html;
 }
 
-// Scroll to bottom logic
-chatMessages.addEventListener('scroll', () => {
-  const isAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 100;
-  scrollToBottomBtn.hidden = isAtBottom;
-});
-
-scrollToBottomBtn.addEventListener('click', () => {
-  chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
-});
-
-// Restart Logic
-restartButton.addEventListener('click', () => {
-  if (confirm('Are you sure you want to restart the guide? This will clear your current chat.')) {
-    chatMessages.innerHTML = '';
-    currentStep = 1;
-    updateProgressIndicator(1);
-    showGreeting();
-  }
-});
-
-window.handleSendMessage = handleSendMessage;
-
-window.startAssistant = function() {
-  const debug = document.getElementById("debug");
-  if (debug) debug.innerText = "Start clicked";
-  const landingScreen = document.getElementById('landingScreen');
-  const chatCont = document.getElementById('chatContainer');
-  if (landingScreen && chatCont) {
-    landingScreen.style.display = 'none';
-    chatCont.style.display = 'flex';
-    showGreeting();
-  }
-};
-
-window.onload = () => {
-  const input = document.getElementById("messageInput");
-  const sendBtn = document.getElementById("sendBtn");
-  const startBtn = document.getElementById("startBtn");
-
-  const debug = document.getElementById("debug");
-
-  if (debug) debug.innerText = "Elements loaded";
-
-  if (startBtn) {
-    startBtn.onclick = window.startAssistant;
-  }
-
-  if (sendBtn) {
-    sendBtn.onclick = () => handleSendMessage();
-  }
-
-  if (input) {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        handleSendMessage();
-      }
-    });
-  }
-};
-
+// ── Greeting ───────────────────────────────────────────────────────
 function showGreeting() {
   currentStep = 1;
   addMessage(
@@ -436,12 +377,97 @@ function showGreeting() {
     false
   );
 
-  const instruction = document.createElement('div');
-  instruction.className = 'welcome-hint';
-  instruction.textContent =
-    'Pick a starter below or type your own question—these options stay available and update after each reply.';
-  chatMessages.appendChild(instruction);
+  const chatMessages = document.getElementById('chatMessages');
+  if (chatMessages) {
+    const instruction = document.createElement('div');
+    instruction.className = 'welcome-hint';
+    instruction.textContent =
+      'Pick a starter below or type your own question—these options stay available and update after each reply.';
+    chatMessages.appendChild(instruction);
+  }
 
   updatePersistentSuggestions({ _starter: true });
   updateProgressIndicator(1);
 }
+
+// ── Expose globally ────────────────────────────────────────────────
+window.handleSendMessage = handleSendMessage;
+window.startAssistant = startAssistant;
+
+// ══════════════════════════════════════════════════════════════════
+// SINGLE DOMContentLoaded — ALL event bindings happen here
+// ══════════════════════════════════════════════════════════════════
+document.addEventListener("DOMContentLoaded", () => {
+  const startBtn = document.getElementById("startBtn");
+  const sendBtn = document.getElementById("sendBtn");
+  const input = document.getElementById("messageInput");
+  const chatMessages = document.getElementById("chatMessages");
+  const scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
+  const restartButton = document.getElementById("restartButton");
+  const chatSelector = document.getElementById("languageSelector");
+
+  // Debug verification
+  console.log("startBtn:", startBtn);
+  console.log("sendBtn:", sendBtn);
+  console.log("input:", input);
+  console.log("chatMessages:", chatMessages);
+
+  // ── DIAGNOSTIC: Global click test ──
+  document.body.addEventListener("click", () => {
+    console.log("CLICK DETECTED");
+  });
+
+  // Language selector sync
+  if (chatSelector) chatSelector.value = currentLanguage;
+
+  // ── Start button ──
+  if (startBtn) {
+    startBtn.addEventListener("click", () => {
+      console.log("START BUTTON CLICKED");
+      startAssistant();
+    });
+  }
+
+  // ── Send button ──
+  if (sendBtn) {
+    sendBtn.addEventListener("click", () => {
+      console.log("SEND BUTTON CLICKED");
+      handleSendMessage();
+    });
+  }
+
+  // ── Enter key ──
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      console.log("KEY PRESSED:", e.key);
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    });
+  }
+
+  // ── Scroll to bottom ──
+  if (chatMessages && scrollToBottomBtn) {
+    chatMessages.addEventListener('scroll', () => {
+      const isAtBottom = chatMessages.scrollHeight - chatMessages.scrollTop <= chatMessages.clientHeight + 100;
+      scrollToBottomBtn.hidden = isAtBottom;
+    });
+
+    scrollToBottomBtn.addEventListener('click', () => {
+      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+    });
+  }
+
+  // ── Restart ──
+  if (restartButton && chatMessages) {
+    restartButton.addEventListener('click', () => {
+      if (confirm('Are you sure you want to restart the guide? This will clear your current chat.')) {
+        chatMessages.innerHTML = '';
+        currentStep = 1;
+        updateProgressIndicator(1);
+        showGreeting();
+      }
+    });
+  }
+});
