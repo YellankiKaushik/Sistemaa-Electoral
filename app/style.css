@@ -41,6 +41,7 @@ body {
     overflow: hidden;
     position: relative;
     border: 1px solid var(--border);
+    z-index: 1;
 }
 
 /* Header */
@@ -451,4 +452,12 @@ body {
         padding: 8px 14px;
         font-size: 0.8rem;
     }
+}
+
+#debug {
+    pointer-events: none;
+}
+
+button {
+    pointer-events: auto;
 }

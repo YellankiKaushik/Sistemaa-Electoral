@@ -31,24 +31,39 @@ document.addEventListener('change', (e) => {
 
 /** Send without clearing persistent suggestion rail */
 async function handleSendMessage(overrideText = null) {
+  const input = document.getElementById("messageInput");
+  const debug = document.getElementById("debug");
+
+  if (!input) {
+    if (debug) debug.innerText = "Input NOT found";
+    return;
+  }
+
   if (isProcessing === true) return;
 
-  const text = String(overrideText != null ? overrideText : messageInput.value).trim();
+  const text = String(overrideText != null ? overrideText : input.value).trim();
+  if (!text) {
+    if (debug) debug.innerText = "Empty message";
+    return;
+  }
+
   if (document.getElementById('typing-indicator')) return;
+
+  if (debug) debug.innerText = "Sending message...";
 
   addMessage(text || '...', 'user');
   if (overrideText == null) {
-    messageInput.value = '';
+    input.value = '';
   }
 
   // Loading Indicator UX
   addMessage('<div class="spinner"></div><span>Processing...</span>', 'bot', true);
   chatMessages.lastElementChild.id = 'typing-indicator';
-  messageInput.placeholder = "Processing...";
+  input.placeholder = "Processing...";
 
   try {
     isProcessing = true;
-    messageInput.disabled = true;
+    input.disabled = true;
 
     const API_URL = window.location.origin;
     const payload = {
@@ -82,6 +97,10 @@ async function handleSendMessage(overrideText = null) {
     if (typingIndicator) typingIndicator.remove();
 
     const data = await response.json();
+    
+    if (debug) debug.innerText = "Response received";
+    console.log(data);
+
     syncClientState(data);
     window.__lastMessage = text;
 
@@ -96,12 +115,14 @@ async function handleSendMessage(overrideText = null) {
     }, 100);
 
     isProcessing = false;
-    messageInput.disabled = false;
-    messageInput.placeholder = "Type your message...";
+    input.disabled = false;
+    input.placeholder = "Type your message...";
   } catch (error) {
     isProcessing = false;
-    messageInput.disabled = false;
-    messageInput.placeholder = "Type your message...";
+    input.disabled = false;
+    input.placeholder = "Type your message...";
+
+    if (debug) debug.innerText = "ERROR sending";
 
     const typingIndicator = document.getElementById('typing-indicator');
     if (typingIndicator) typingIndicator.remove();
@@ -367,31 +388,42 @@ restartButton.addEventListener('click', () => {
 });
 
 window.handleSendMessage = handleSendMessage;
-if (sendButton) {
-  sendButton.onclick = () => handleSendMessage();
-}
-messageInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    handleSendMessage();
+
+window.onload = () => {
+  const input = document.getElementById("messageInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const startBtn = document.getElementById("startBtn");
+
+  const debug = document.getElementById("debug");
+
+  if (debug) debug.innerText = "Elements loaded";
+
+  if (startBtn) {
+    startBtn.onclick = () => {
+      if (debug) debug.innerText = "Start clicked";
+      const landingScreen = document.getElementById('landingScreen');
+      const chatCont = document.getElementById('chatContainer');
+      if (landingScreen && chatCont) {
+        landingScreen.style.display = 'none';
+        chatCont.style.display = 'flex';
+        showGreeting();
+      }
+    };
   }
-});
 
-const startButton = document.getElementById('startButton');
-const landingScreen = document.getElementById('landingScreen');
-const chatContainer = document.getElementById('chatContainer');
+  if (sendBtn) {
+    sendBtn.onclick = () => handleSendMessage();
+  }
 
-window.startAssistant = function() {
-  if (landingScreen && chatContainer) {
-    landingScreen.style.display = 'none';
-    chatContainer.style.display = 'flex';
-    showGreeting();
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSendMessage();
+      }
+    });
   }
 };
-
-if (startButton) {
-  startButton.onclick = window.startAssistant;
-}
 
 function showGreeting() {
   currentStep = 1;

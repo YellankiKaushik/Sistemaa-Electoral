@@ -10,6 +10,10 @@
 </head>
 
 <body>
+    <div id="debug" style="position:fixed;top:0;left:0;background:black;color:white;font-size:10px;z-index:9999;padding:5px;">
+        DEBUG: ready
+    </div>
+
     <div id="landingScreen" class="chat-container">
         <header class="chat-header landing-header">
             <div style="flex: 1;"></div>
@@ -49,7 +53,7 @@
                 </div>
             </div>
 
-            <button id="startButton" class="send-btn start-btn" onclick="startAssistant()">
+            <button id="startBtn" class="send-btn start-btn">
                 Start Assistant
             </button>
         </main>
@@ -213,13 +217,7 @@
         <footer class="chat-input-container">
             <div class="input-bar">
                 <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
-                <button id="sendButton" class="send-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="22" y1="2" x2="11" y2="13"></line>
-                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                    </svg>
-                </button>
+                <button id="sendBtn" class="send-btn">Send</button>
             </div>
         </footer>
     </div>
