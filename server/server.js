@@ -1,11 +1,10 @@
 require('dotenv').config();
 
 // 1. ENV VALIDATION (Security)
-const requiredEnv = ["GEMINI_API_KEY"];
+const requiredEnv = ["GEMINI_API_KEY", "GOOGLE_TRANSLATE_API_KEY"];
 requiredEnv.forEach((key) => {
   if (!process.env[key]) {
-    console.error(`❌ Missing environment variable: ${key}`);
-    process.exit(1);
+    console.warn(`⚠️ Missing environment variable: ${key}`);
   }
 });
 
@@ -19,7 +18,7 @@ const rateLimit = require('express-rate-limit');
 const chatRoutes = require('./routes/chat');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Rate Limiting (Security)
 const limiter = rateLimit({
@@ -49,7 +48,6 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'healthy' });
 });
 
-// ✅ Start Server (UPDATED)
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running on port ${PORT}`);
 });

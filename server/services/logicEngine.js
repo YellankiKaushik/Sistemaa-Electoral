@@ -109,36 +109,6 @@ const processMessage = async (message, user_profile = {}, current_step = 1, user
   const confusionVariantSeed = Number(profile.confusionVariant) || 0;
   const lastConfusionExplanation = profile.lastConfusionExplanation || "";
 
-  // 5. HELP DETECTION
-  if (lowerMessage === 'help') {
-    const helpResponse = {
-      title: "### How to Use This Assistant",
-      explanation: "This assistant helps you understand and navigate the election process with ease.\n\n" +
-        "• **What you can ask**: You can ask about voting requirements, registration steps, or election timelines.\n" +
-        "• **How to navigate**: Use the guided learning path by typing **'next'**, or simply ask any question at any time.",
-      example: "You can learn step-by-step about elections by following the guide, or ask questions like 'What is election?' or 'How to vote?'",
-      next_suggestion: "To get started with the guided tour, just type **'next'**.",
-      confirmation: "I'm here to help you become an informed voter!"
-    };
-
-    let finalHelpResponse = {
-      ...responseFormatter.formatResponse(helpResponse),
-      current_step,
-      next_step: current_step,
-      intent: 'help',
-      mode: profile.mode,
-      status: 'success',
-      language: effectiveOutputLang
-    };
-
-    if (effectiveOutputLang !== "en") {
-      const fields = [finalHelpResponse.title, finalHelpResponse.explanation, finalHelpResponse.next_suggestion, finalHelpResponse.confirmation];
-      const translated = await translationService.translateMultiple(fields, effectiveOutputLang);
-      [finalHelpResponse.title, finalHelpResponse.explanation, finalHelpResponse.next_suggestion, finalHelpResponse.confirmation] = translated;
-    }
-    return finalHelpResponse;
-  }
-
   // 3. LANGUAGE DETECTION & TRANSLATION
   let detectedLang = await translationService.detectLanguage(message);
   const hinglishKeywords = ["kya", "kaise", "hai", "karo", "batao", "samjhao"];
@@ -164,6 +134,36 @@ const processMessage = async (message, user_profile = {}, current_step = 1, user
   }
   translatedInput = String(translatedInput || "").trim();
   const translatedLower = translatedInput.toLowerCase();
+
+  // 5. HELP DETECTION (after language is known)
+  if (lowerMessage === 'help') {
+    const helpResponse = {
+      title: "### How to Use This Assistant",
+      explanation: "This assistant helps you understand and navigate the election process with ease.\n\n" +
+        "\u2022 **What you can ask**: You can ask about voting requirements, registration steps, or election timelines.\n" +
+        "\u2022 **How to navigate**: Use the guided learning path by typing **'next'**, or simply ask any question at any time.",
+      example: "You can learn step-by-step about elections by following the guide, or ask questions like 'What is election?' or 'How to vote?'",
+      next_suggestion: "To get started with the guided tour, just type **'next'**.",
+      confirmation: "I'm here to help you become an informed voter!"
+    };
+
+    let finalHelpResponse = {
+      ...responseFormatter.formatResponse(helpResponse),
+      current_step,
+      next_step: current_step,
+      intent: 'help',
+      mode: profile.mode,
+      status: 'success',
+      language: effectiveOutputLang
+    };
+
+    if (effectiveOutputLang !== "en") {
+      const fields = [finalHelpResponse.title, finalHelpResponse.explanation, finalHelpResponse.next_suggestion, finalHelpResponse.confirmation];
+      const translated = await translationService.translateMultiple(fields, effectiveOutputLang);
+      [finalHelpResponse.title, finalHelpResponse.explanation, finalHelpResponse.next_suggestion, finalHelpResponse.confirmation] = translated;
+    }
+    return finalHelpResponse;
+  }
 
   // 4. NOISE DETECTION (POST-TRANSLATION)
   const isNoisyInput =
@@ -283,9 +283,12 @@ const processMessage = async (message, user_profile = {}, current_step = 1, user
       finalResponse.explanation += "\n\nLet’s start from the basics and build your understanding step by step.";
     }
   }
-  // TOPIC RESCUE (GLOBAL — MUST BE INDEPENDENT)
-  if (matchedTopics.length === 1 && hasConfusion) {
+  else if (matchedTopics.length === 1 && hasConfusion) {
+    // TOPIC RESCUE: single topic + confusion → resolve intent, build response
     routingIntent = intentService.detectIntent(matchedTopics[0].topic).intent;
+    const flowResult = flowService.handleFlow(routingIntent, profile, current_step, translatedInput);
+    const personalizedResponse = personalizationService.adaptResponse(flowResult, profile);
+    finalResponse = { ...personalizedResponse, status: 'success' };
   }
   else if (!matchedTopics.length && !isNavigation && hasConfusion) {
     routingIntent = "confusion";
