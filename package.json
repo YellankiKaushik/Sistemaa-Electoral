@@ -2,7 +2,7 @@
   "name": "sistemaa-electoral",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server/server.js",
   "directories": {
     "doc": "docs"
   },
@@ -27,6 +27,7 @@
     "body-parser": "^2.2.2",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.4.1"
   }
 }
