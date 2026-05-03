@@ -50,25 +50,30 @@ async function handleSendMessage(overrideText = null) {
     isProcessing = true;
     messageInput.disabled = true;
 
-    const response = await fetch('/chat', {
+    const API_URL = window.location.origin;
+    const payload = {
+      message: text,
+      user_profile: {
+        level: 'beginner',
+        type: 'first_time',
+        mode: 'guided',
+        confusionLevel: typeof window.__lastConfusionLevel === 'number' ? window.__lastConfusionLevel : 0,
+        confusionVariant: typeof window.__lastConfusionVariant === 'number' ? window.__lastConfusionVariant : 0,
+        lastConfusionExplanation: window.__lastConfusionExplanation || '',
+        last_message: window.__lastMessage || ''
+      },
+      current_step: currentStep,
+      user_language: currentLanguage
+    };
+
+    console.log("Sending request to:", `${API_URL}/chat`);
+
+    const response = await fetch(`${API_URL}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        message: text,
-        user_profile: {
-          level: 'beginner',
-          type: 'first_time',
-          mode: 'guided',
-          confusionLevel: typeof window.__lastConfusionLevel === 'number' ? window.__lastConfusionLevel : 0,
-          confusionVariant: typeof window.__lastConfusionVariant === 'number' ? window.__lastConfusionVariant : 0,
-          lastConfusionExplanation: window.__lastConfusionExplanation || '',
-          last_message: window.__lastMessage || ''
-        },
-        current_step: currentStep,
-        user_language: currentLanguage
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!response.ok) throw new Error('Network response was not ok');
@@ -361,21 +366,31 @@ restartButton.addEventListener('click', () => {
   }
 });
 
-sendButton.addEventListener('click', () => handleSendMessage());
-messageInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') handleSendMessage();
+window.handleSendMessage = handleSendMessage;
+if (sendButton) {
+  sendButton.onclick = () => handleSendMessage();
+}
+messageInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    handleSendMessage();
+  }
 });
 
 const startButton = document.getElementById('startButton');
 const landingScreen = document.getElementById('landingScreen');
 const chatContainer = document.getElementById('chatContainer');
 
-if (startButton) {
-  startButton.addEventListener('click', () => {
+window.startAssistant = function() {
+  if (landingScreen && chatContainer) {
     landingScreen.style.display = 'none';
     chatContainer.style.display = 'flex';
     showGreeting();
-  });
+  }
+};
+
+if (startButton) {
+  startButton.onclick = window.startAssistant;
 }
 
 function showGreeting() {
