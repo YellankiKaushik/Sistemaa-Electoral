@@ -86,7 +86,9 @@ async function handleSendMessage(overrideText = null) {
     updatePersistentSuggestions(data);
     updateProgressIndicator(currentStep);
 
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    setTimeout(() => {
+      chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+    }, 100);
 
     isProcessing = false;
     messageInput.disabled = false;
@@ -304,7 +306,9 @@ function addMessage(text, sender = 'user', isHtml = false) {
   }
 
   chatMessages.appendChild(messageDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  setTimeout(() => {
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
+  }, 100);
 }
 
 function formatBotResponse(data) {
@@ -344,7 +348,7 @@ chatMessages.addEventListener('scroll', () => {
 });
 
 scrollToBottomBtn.addEventListener('click', () => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'smooth' });
 });
 
 // Restart Logic
