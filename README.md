@@ -1,53 +1,127 @@
-# Sistemaa Electoral 🗳️
-### Your AI-Powered Guided Election Assistant
+# 🗳️ Sistemaa Electoral — AI Election Assistant
 
-**Sistemaa Electoral** is an intelligent assistant designed to educate citizens, especially first-time voters, about the Indian election process. It provides a simple, structured, and interactive way to build confidence and participation in the democratic process.
+## 📌 Overview
 
----
+**Sistemaa Electoral** is a smart, multilingual AI assistant designed to simplify and explain the election process in an interactive and user-friendly way.
 
-## 🌟 Key Features
+It helps users understand:
+- Election basics  
+- Importance of voting  
+- Election timeline  
+- Step-by-step voting process  
+- What actions to take  
 
-- **Guided Learning Path**: A structured 5-step journey covering Basics, Importance, Timeline, Process, and Actionable Steps.
-- **Intent-Based Interaction**: Smart detection of user needs, allowing users to jump between topics or ask specific questions at any time.
-- **Personalized Experience**: Adapts tone, complexity, and examples based on the user's knowledge level (Beginner vs. Aware) and profile (First-time Voter).
-- **Confusion Recovery**: Detects when a user is stuck and automatically simplifies explanations, using analogies and micro-chunking to ensure clarity.
-- **Logic-First Design**: A robust, rule-based engine handles core educational content, ensuring high accuracy and non-biased information.
-- **AI Fallback Layer**: Seamlessly integrates AI to handle complex or out-of-scope queries while maintaining the guided flow.
-
----
-
-## 🛠️ Technology Stack
-
-- **Backend**: Node.js, Express
-- **Frontend**: HTML5, CSS3 (Vanilla), JavaScript (Vanilla)
-- **Deployment**: Google Cloud Run (Dockerized)
-- **Architecture**: Modular Service-Oriented Architecture (Intent, Flow, Personalization, Confusion, Formatter services).
+This solution is built for **real-world usability**, especially for first-time voters and citizens with limited awareness of electoral systems.
 
 ---
 
-## 🚀 How It Works
+## 🎯 Challenge Alignment
 
-1. **Entry**: Users are presented with a friendly interface and quick-start options.
-2. **Analysis**: Every message is processed by the **Logic Engine**, which identifies intent and consults the **Flow Service**.
-3. **Personalization**: The response is tailored by the **Personalization Service** to match the user's profile.
-4. **Validation**: The **Confusion Service** checks for signs of frustration, simplifying the message if needed.
-5. **Formatting**: The **Response Formatter** ensures every message follows the PRD-mandated 6-point structure (Title, Explanation, Steps, Example, Next Suggestion, Confirmation).
+**Vertical:** Election Process Education  
+
+This assistant addresses:
+- Lack of awareness about elections  
+- Confusion around voting procedures  
+- Language barriers  
+- Need for structured and guided learning  
+
+---
+
+## ⚙️ Tech Stack
+
+- **Backend:** Node.js + Express  
+- **Frontend:** HTML, CSS, JavaScript  
+- **AI Engine:** Google Gemini (Generative AI)  
+- **Translation:** Google Cloud Translation API  
+- **Deployment:** Google Cloud Run (Dockerized)
+
+---
+
+## 🧠 How It Works
+
+The system follows a **hybrid intelligence model**:
+
+### 1. Rule-Based Engine (Primary Layer)
+- Detects user intent (topic / confusion / navigation)
+- Guides users through a **5-step election learning flow**
+- Ensures structured and predictable responses
+
+### 2. AI Fallback Layer (Gemini)
+- Handles unknown or open-ended queries  
+- Provides dynamic explanations  
+- Maintains response safety and validation  
+
+### 3. Multilingual Pipeline
+- Detects user language automatically  
+- Translates input → processes → translates output  
+- Supports Hinglish and mixed-language queries  
+
+---
+
+## 🔑 Core Features
+
+- 🧭 Guided step-by-step election learning  
+- 🤖 AI-powered fallback for complex questions  
+- 🌐 Multilingual support (auto translation)  
+- 🧠 Confusion detection & simplification  
+- 🔒 Secure input validation & filtering  
+- ⚡ Fast response with caching & rate limiting  
+
+---
+
+## 🔐 Security & Reliability
+
+- API keys handled via environment variables  
+- Input sanitization and validation  
+- Rate limiting to prevent abuse  
+- Prompt injection protection  
+- Safe fallback responses  
 
 ---
 
 ## 📦 Deployment
 
-The application is containerized using Docker and ready for deployment on **Google Cloud Run**.
+The application is deployed on **Google Cloud Run** using Docker.
 
-### Local Setup
-1. Clone the repository.
-2. Run `npm install`.
-3. Start the server: `npm start`.
-4. Open `http://localhost:3000` in your browser.
+👉 **Live URL:**  
+https://election-app-116362886136.asia-south1.run.app/
 
 ---
 
-## 📄 License
-This project is developed for the **Prompt Wars Challenge 2**.
+## 🧪 Testing
 
-**Author**: Kaushik Yellanki
+System tested across:
+
+- Structured queries  
+- Confusion scenarios  
+- Noise inputs  
+- Multilingual queries  
+- Security edge cases  
+
+---
+
+## ⚠️ Assumptions
+
+- Users may not have prior knowledge of elections  
+- Users may input mixed or unclear language  
+- System prioritizes clarity over complexity  
+
+---
+
+## 🚀 Outcome
+
+A **production-ready AI assistant** that:
+- Educates users about elections  
+- Reduces confusion  
+- Improves accessibility  
+- Demonstrates real-world AI application  
+
+---
+
+## 🔗 Links
+
+- **GitHub Repository:**  
+  https://github.com/YellankiKaushik/Sistemaa-Electoral  
+
+- **Live Application:**  
+  https://election-app-116362886136.asia-south1.run.app/  
